@@ -26,14 +26,17 @@ public class CameraController : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         offset = transform.position - player.transform.position;
+        //StartCoroutine("Test1");
     }
 
     void Update()
     {
-        Vector3 targetPos = player.transform.position + offset;
+        /*Vector3 targetPos = player.transform.position + offset;
         targetPos.x = Mathf.Clamp(targetPos.x, xMin, xMax);
-        targetPos.z = Mathf.Clamp(targetPos.z, zMin, zMax);
+        targetPos.z = Mathf.Clamp(targetPos.z, zMin, zMax);*/
         transform.position = player.transform.position + offset;
+
+        transform.LookAt(player.transform.position);
 
 
         //Adjustable Camera for Debug Mode
@@ -88,5 +91,15 @@ public class CameraController : MonoBehaviour
         Vector3 newPos)
     {
 
+    }
+    IEnumerator Test1()
+    {
+        yield return new WaitForSeconds(1);
+
+        for(int i = 0; i< 100; i++)
+        {
+            offset += Vector3.up*0.05f;
+            yield return new WaitForSeconds(0.05f);
+        }
     }
 }
