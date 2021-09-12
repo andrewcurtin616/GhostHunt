@@ -27,20 +27,15 @@ public class Door : MonoBehaviour
     }
     void Start()
     {
-        //StartCoroutine("OpenDoor");
-        //StartCoroutine("OpenDoorOut");
         doorAnchor = transform.parent.gameObject;
         originalRot = doorAnchor.transform.localEulerAngles.y;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(atDoor && Input.GetKeyDown(KeyCode.Space) &&
-            FindObjectOfType<PlayerController>().canMove)
+        if(atDoor && Input.GetKeyDown(KeyCode.Space) && FindObjectOfType<PlayerController>().canMove)
         {
             FindObjectOfType<PlayerController>().canMove = false;
-            //StartCoroutine("OpenDoor");
             StartCoroutine("MovePlayer");
         }
     }
@@ -58,8 +53,6 @@ public class Door : MonoBehaviour
 
     IEnumerator OpenDoor()
     {
-        //yield return new WaitForSeconds(0.25f);
-        hitBox.enabled = false;
         for (int i = 1; i < 91; i++)
         {
             doorAnchor.transform.localEulerAngles = Vector3.up * (i + originalRot);
@@ -72,14 +65,10 @@ public class Door : MonoBehaviour
             doorAnchor.transform.localEulerAngles = Vector3.up * (i + originalRot);
             yield return null;
         }
-        doorAnchor.transform.localEulerAngles = Vector3.up * (0 + originalRot);
-        hitBox.enabled = true;
-        FindObjectOfType<PlayerController>().canMove = true;
+        DoorClose();
     }
     IEnumerator OpenDoorOut()
     {
-        //yield return new WaitForSeconds(0.25f);
-        hitBox.enabled = false;
         for (int i = 1; i < 91; i++)
         {
             doorAnchor.transform.localEulerAngles = Vector3.up * (-i + originalRot);
@@ -92,6 +81,12 @@ public class Door : MonoBehaviour
             doorAnchor.transform.localEulerAngles = Vector3.up * (-i + originalRot);
             yield return null;
         }
+        DoorClose();
+    }
+    void DoorClose()
+    {
+        if ((transform.parent.localEulerAngles.y == 0 || transform.parent.localEulerAngles.y == 180))
+            Debug.Log("Y: ");
         doorAnchor.transform.localEulerAngles = Vector3.up * (0 + originalRot);
         hitBox.enabled = true;
         FindObjectOfType<PlayerController>().canMove = true;
@@ -107,6 +102,7 @@ public class Door : MonoBehaviour
         player.transform.LookAt(new Vector3(transform.position.x, player.transform.position.y, transform.position.z));
 
         yield return new WaitForSeconds(0.25f);
+        hitBox.enabled = false;
         if (isPlayerInFront)
             StartCoroutine("OpenDoor");
         else

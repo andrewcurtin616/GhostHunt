@@ -23,10 +23,10 @@ public class Ghost : MonoBehaviour
     {
         room = transform.parent.parent.GetComponent<Room>();
         player = FindObjectOfType<PlayerController>();
-        StartCoroutine("Approach");
+        state = ghostState.Hiding;
+        StartCoroutine("Hide");
     }
 
-    
     void Update()
     {
         if (inLight)
@@ -37,7 +37,8 @@ public class Ghost : MonoBehaviour
             {
                 //attackCollider.enabled = false;
                 //attackParticle.Stop();
-                state = ghostState.Stun;
+                StopAllCoroutines();
+                StartCoroutine("Stun");
                 inLight = false;
                 stunCount = 0;
             }
@@ -101,6 +102,7 @@ public class Ghost : MonoBehaviour
         {
             //idle, maybe float/hover?
             yield return new WaitForSeconds(1);
+            //put teleport here?
             StartCoroutine("Teleport");
         }
     }
@@ -108,13 +110,19 @@ public class Ghost : MonoBehaviour
     IEnumerator Stun()
     {
         state = ghostState.Stun;
+        //noise, etc.
         yield return new WaitForSeconds(3.5f);
-        //teleport
+
+        if (Random.Range(-1, 1) < 0)
+            state = ghostState.Hiding;
+
+        StartCoroutine("Teleport");
     }
 
     IEnumerator Teleport()
     {
         //fade,play noise,anim, etc. (disappear)
+        GetComponent<Renderer>().enabled = false; //should be fade and anim
         yield return new WaitForSeconds(2.5f);
         if (state == ghostState.Hiding)
         {
@@ -123,21 +131,83 @@ public class Ghost : MonoBehaviour
             yield return null;
         }
         state = ghostState.Teleporting;
+        yield return new WaitForSeconds(Random.Range(1.5f, 3f));
         //choose spot to be in, then fade back in and approach
+
+        /*** Should be reworked to use room.boundaries ***/
+        BoxCollider temp = room.GetComponent<BoxCollider>();
+        float minX = temp.center.x - temp.size.x / 2 + room.transform.position.x;
+        float maxX = temp.center.x + temp.size.x / 2 + room.transform.position.x;
+        float minZ = temp.center.z - temp.size.z / 2 + room.transform.position.z;
+        float maxZ = temp.center.z + temp.size.z / 2 + room.transform.position.z;
+        
+        Vector3 spawnPos = Vector3.zero;
+        while (true)
+        {
+            spawnPos = player.transform.position - player.transform.forward * 2; //behind
+            if (spawnPos.x < maxX && spawnPos.x > minX && spawnPos.z < maxZ && spawnPos.z > minZ)
+                break;
+
+            spawnPos = player.transform.position - player.transform.right * 2; //left
+            if (spawnPos.x < maxX && spawnPos.x > minX && spawnPos.z < maxZ && spawnPos.z > minZ)
+                break;
+
+            spawnPos = player.transform.position + player.transform.right * 2; //right
+            if (spawnPos.x < maxX && spawnPos.x > minX && spawnPos.z < maxZ && spawnPos.z > minZ)
+                break;
+
+            spawnPos = player.transform.position + player.transform.forward * 2;//front
+            if (spawnPos.x < maxX && spawnPos.x > minX && spawnPos.z < maxZ && spawnPos.z > minZ)
+                break;
+
+            spawnPos = room.transform.position + Vector3.up;
+            break;
+        }
+        if (Random.Range(-1, 1) < 0)
+            spawnPos = new Vector3(Random.Range(minX, maxX),
+                room.transform.position.y + 1, Random.Range(minZ, maxZ));
+        transform.position = spawnPos;
+        GetComponent<Renderer>().enabled = true; //should be fade and anim
+        StartCoroutine("Approach");
     }
 
     IEnumerator Hide()
     {
         //decide where to hide
-        //wait for decor to be shook (loop)
-        yield return null;
+        //Decor hidingSpot = room.decorActive[Random.Range(0, room.decorActive.Length)];
+        //remember to make decor array of Decor scripts rather than transforms
+        transform.position = room.decorActive[Random.Range(0, room.decorActive.Length)].position;
+        yield return new WaitForSeconds(5f);
+        /*while (true)
+        {
+            //wait for decor to be shook
+            yield return null;
+            break;
+        }*/
         //reveal, scare, then teleport
+        state = ghostState.Teleporting;
+        StartCoroutine("Teleport");
     }
 
     IEnumerator Capture()
     {
+        StopCoroutine("Stun");
         state = ghostState.Capture;
         yield return null;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.name == "Flashlight" &&
+            (state == ghostState.Approaching || state == ghostState.Attacking || state == ghostState.Laughing))
+            inLight = true;
+        if (other.name == "Vacuum" && state == ghostState.Stun)
+            StartCoroutine("Capture");
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.name == "Flashlight")
+            inLight = false;
     }
 
     private void OnDrawGizmos()

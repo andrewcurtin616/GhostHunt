@@ -5,8 +5,10 @@ using UnityEngine;
 public class Room : MonoBehaviour
 {
     Light[] roomLights;
-    Transform[] decorActive;
+    [HideInInspector]
+    public Transform[] decorActive;
     List<Ghost> ghosts;
+    public Vector4 boundaries;
 
     private void Awake()
     {
@@ -21,6 +23,17 @@ public class Room : MonoBehaviour
             tempBox.isTrigger = true;
             tempBox.size = new Vector3(floorScale.x * 10, 1, floorScale.z * 10);
         }
+
+        BoxCollider temp = GetComponent<BoxCollider>();
+        /*boundaries = new Vector4(temp.center.x - temp.size.x / 2 + transform.position.x,
+            temp.center.x + temp.size.x / 2 + transform.position.x,
+            temp.center.z - temp.size.z / 2 + transform.position.z,
+            temp.center.z + temp.size.z / 2 + transform.position.z);*/
+
+        boundaries = new Vector4(temp.center.x - temp.size.x / 2 + temp.center.x,
+            temp.center.x + temp.size.x / 2 + temp.center.x,
+            temp.center.z - temp.size.z / 2 + temp.center.z,
+            temp.center.z + temp.size.z / 2 + temp.center.z);
     }
     void Start()
     {
@@ -33,6 +46,8 @@ public class Room : MonoBehaviour
             if (child.name == "Ghosts")
                 ghosts = new List<Ghost>(child.GetComponentsInChildren<Ghost>());
         }
+
+        
 
         RoomExit();
     }
