@@ -138,7 +138,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Enemy" && canBeHit)
+        if (other.tag == "Enemy")
         {
             GetHit(10);
         }
@@ -172,6 +172,8 @@ public class PlayerController : MonoBehaviour
         //Could use 0 damage to just show a scare
         //face hit?
         //Lower health
+        if (!canBeHit)
+            return;
         lastHit = Time.time;
         rb.velocity = -transform.forward * 2.5f; //fall back
         canMove = false;

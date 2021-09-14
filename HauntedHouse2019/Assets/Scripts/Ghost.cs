@@ -11,6 +11,7 @@ public class Ghost : MonoBehaviour
     public ghostState state;
     Room room;
     PlayerController player;
+    SphereCollider attackCollider;
 
     private void Awake()
     {
@@ -23,6 +24,8 @@ public class Ghost : MonoBehaviour
     {
         room = transform.parent.parent.GetComponent<Room>();
         player = FindObjectOfType<PlayerController>();
+        attackCollider = GetComponentsInChildren<SphereCollider>()[1];
+        attackCollider.enabled = false;
         state = ghostState.Hiding;
         StartCoroutine("Hide");
     }
@@ -82,7 +85,7 @@ public class Ghost : MonoBehaviour
         float tempTime = Time.time + 2.5f;
         //attack particles
         yield return new WaitForSeconds(0.5f);
-        //attackCollider.enabled = true;
+        attackCollider.enabled = true;
         while (true)
         {
             transform.position = Vector3.MoveTowards(transform.position, transform.forward + attackPosition, 0.1f);
@@ -90,6 +93,7 @@ public class Ghost : MonoBehaviour
                 break;
             yield return null;
         }
+        attackCollider.enabled = false;
 
         if (!player.canBeHit)
         {
@@ -100,6 +104,7 @@ public class Ghost : MonoBehaviour
         }
         else
         {
+            state = ghostState.Teleporting;
             //idle, maybe float/hover?
             yield return new WaitForSeconds(1);
             //put teleport here?
