@@ -6,7 +6,7 @@ public class Ghost : MonoBehaviour
 {
     int stunCount;
     bool inLight;
-    int health = 100;
+    public int health = 100;
     public enum ghostState { Approaching, Attacking, Laughing, Teleporting, Stun, Capture, Hiding };
     public ghostState state;
     Room room;
@@ -115,6 +115,7 @@ public class Ghost : MonoBehaviour
     IEnumerator Stun()
     {
         state = ghostState.Stun;
+        attackCollider.enabled = false;
         //noise, etc.
         yield return new WaitForSeconds(3.5f);
 
@@ -137,7 +138,6 @@ public class Ghost : MonoBehaviour
         }
         state = ghostState.Teleporting;
         yield return new WaitForSeconds(Random.Range(1.5f, 3f));
-        //choose spot to be in, then fade back in and approach
 
         /*** Should be reworked to use room.boundaries ***/
         BoxCollider temp = room.GetComponent<BoxCollider>();
@@ -198,7 +198,103 @@ public class Ghost : MonoBehaviour
     {
         StopCoroutine("Stun");
         state = ghostState.Capture;
-        yield return null;
+        player.StartCoroutine("Catching", this);
+        Vector3 newPos = new Vector3(transform.position.x, transform.position.y + 1.25f, transform.position.z);
+
+        while (transform.position.y < newPos.y - 0.05f)
+        {
+            transform.position = Vector3.Lerp(transform.position, newPos, 0.05f);
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.25f);
+        StartCoroutine("Capture2");
+
+        int randInt = Random.Range(3, 8);
+        float turnTightness = 0;
+        float speed = 0;
+        while (health>0) //until caught
+        {
+            newPos.x = Random.Range(room.boundaries.x, room.boundaries.y);
+            newPos.y = transform.localPosition.y;
+            newPos.z = Random.Range(room.boundaries.z, room.boundaries.w);
+            turnTightness = Random.Range(0.05f, 0.15f);
+            speed = Random.Range(0.05f, 0.1f);
+            float safetyTimer = Time.time + 5f;
+
+            while (Vector3.Distance(transform.localPosition, newPos) > 0.5f || safetyTimer < Time.time)
+            {
+                Vector3 newDirection = (newPos - transform.localPosition).normalized;
+                transform.forward = Vector3.Lerp(transform.forward, newDirection, turnTightness);
+                transform.Translate(Vector3.forward * speed, Space.Self);
+                transform.localPosition = new Vector3(Mathf.Clamp(transform.localPosition.x, room.boundaries.x - 0.15f, room.boundaries.y + 0.15f),
+                    transform.localPosition.y, Mathf.Clamp(transform.localPosition.z, room.boundaries.z - 0.15f, room.boundaries.w + 0.15f));
+                yield return null;
+                if (health <= 0)
+                    break;
+            }
+            yield return null;
+        }
+
+        while (Vector3.Distance(transform.position, player.transform.position) > 0.2f)
+        {
+            newPos = transform.position - player.transform.position;
+            transform.Translate(newPos.normalized * 0.05f, Space.Self);
+            transform.position = Vector3.MoveTowards(transform.position, player.transform.position, 0.2f);
+            yield return null;
+        }
+        GetComponent<Renderer>().enabled = false;
+        GetComponent<SphereCollider>().enabled = false;
+        Light myLight = GetComponent<Light>();
+        while(myLight.intensity > 0)
+        {
+            myLight.intensity -= 0.02f;
+            yield return null;
+        }
+        Destroy(this);
+        room.CheckGhosts();
+        Destroy(gameObject, 1);
+    }
+    IEnumerator Capture2()
+    {
+        Vector2 pull = Vector2.zero;
+        Vector2 myLine = Vector2.zero;
+        Renderer rend = GetComponent<Renderer>();
+        Color originalColor = rend.material.color;
+        while (health > 0)
+        {
+            pull.x = Input.GetAxis("Horizontal");
+            pull.y = Input.GetAxis("Vertical");
+            myLine.x = player.transform.position.x - transform.position.x;
+            myLine.y = player.transform.position.z - transform.position.z;
+
+            if (Input.GetKey(KeyCode.E))
+            {
+                if (pull != Vector2.zero && Vector2.Angle(pull.normalized, myLine.normalized) < 60)
+                {
+                    rend.material.color = Color.red;
+                    health--;
+                    if (Random.Range(-1, 0) == 0)
+                        health--;
+                    if (Random.Range(-1, 3) >= 0)
+                        health--;
+                    yield return new WaitForSeconds(0.05f);
+                    rend.material.color = originalColor;
+                }
+                else
+                    rend.material.color = originalColor;
+            }
+            else
+            {
+                rend.material.color = originalColor;
+                StopCoroutine("Capture");
+                state = ghostState.Teleporting;
+                StartCoroutine("Teleport");
+                break;
+            }
+            yield return null;
+        }
+        rend.material.color = originalColor;
     }
 
     private void OnTriggerEnter(Collider other)

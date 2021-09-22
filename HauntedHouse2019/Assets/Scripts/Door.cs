@@ -85,8 +85,25 @@ public class Door : MonoBehaviour
     }
     void DoorClose()
     {
-        if ((transform.parent.localEulerAngles.y == 0 || transform.parent.localEulerAngles.y == 180))
-            Debug.Log("Y: ");
+        /*Renderer rend = GetComponent<Renderer>();
+        Color c = rend.material.color;
+        c.a = (transform.parent.localEulerAngles.y == 0 || transform.parent.localEulerAngles.y == 180) ? 0.25f : 1f;
+        rend.material.color = c;*/
+
+        /*if ((transform.parent.localEulerAngles.y == 0 || transform.parent.localEulerAngles.y == 180))
+        {
+            Renderer rend = GetComponent<Renderer>();
+            Color c = rend.material.color;
+            c.a = 0.25f;
+            rend.material.color = c;
+        }
+        else
+        {
+            Renderer rend = GetComponent<Renderer>();
+            Color c = rend.material.color;
+            c.a = 1;
+            rend.material.color = c;
+        }*/
         doorAnchor.transform.localEulerAngles = Vector3.up * (0 + originalRot);
         hitBox.enabled = true;
         FindObjectOfType<PlayerController>().canMove = true;

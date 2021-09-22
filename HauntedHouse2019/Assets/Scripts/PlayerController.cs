@@ -65,6 +65,9 @@ public class PlayerController : MonoBehaviour
                 canBeHit = true;
         }
 
+        if (catching)
+            return;
+
         if (canMove && Input.GetKeyDown(KeyCode.Tab))
         {
             cameraMode = true;
@@ -232,6 +235,43 @@ public class PlayerController : MonoBehaviour
             else if (tool.transform.localRotation.x != 0)
                 tool.transform.Rotate(1f, 0, 0);
         }
+    }
+
+    IEnumerator Catching(Ghost ghost)//have ghost pass in info
+    {
+        catching = true;
+        FlashLightOff();
+        Vector3 lookPos = Vector3.zero;
+
+        while (Input.GetKey(KeyCode.E) && ghost.health > 0)
+        {
+            if (!Input.GetKey(KeyCode.E))
+            {
+                catching = false;
+                StopCoroutine("Catching");
+            }
+
+            //point vac at ghost?
+
+            lookPos = new Vector3(ghost.transform.position.x, transform.position.y, ghost.transform.position.z);
+            transform.LookAt(lookPos);
+            if (Vector3.Distance(transform.position, ghost.transform.position) > 2.5f)
+                //transform.Translate((lookPos - transform.position).normalized * 0.075f);
+                rb.velocity += (lookPos - transform.position).normalized * 3;
+            yield return null;
+        }
+        canMove = false;
+        canBeHit = false;
+        Renderer rend = ghost.GetComponent<Renderer>();
+        while (rend.enabled)
+        {
+            yield return null;
+        }
+        canMove = true;
+        canBeHit = true;
+        catching = false;
+        VacuuumOff();
+        FlashLightOn();
     }
 
     private void OnDrawGizmos()
