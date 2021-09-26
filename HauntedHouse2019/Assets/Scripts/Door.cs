@@ -85,10 +85,16 @@ public class Door : MonoBehaviour
     }
     void DoorClose()
     {
+        //ColorFade(transform.parent.localEulerAngles.y == 0 || transform.parent.localEulerAngles.y == 180);
         /*Renderer rend = GetComponent<Renderer>();
         Color c = rend.material.color;
         c.a = (transform.parent.localEulerAngles.y == 0 || transform.parent.localEulerAngles.y == 180) ? 0.25f : 1f;
-        rend.material.color = c;*/
+        rend.material.color = c;
+        if (GetComponentInParent<DoubleDoor>() != null)
+            GetComponentInParent<DoubleDoor>().CheckDoorFade(c);*/
+
+        ColorFade(Physics.Raycast(transform.position, Vector3.forward,2f));
+        //ColorFade(FindObjectOfType<PlayerController>().transform.position.z > transform.position.z);
 
         /*if ((transform.parent.localEulerAngles.y == 0 || transform.parent.localEulerAngles.y == 180))
         {
@@ -120,6 +126,7 @@ public class Door : MonoBehaviour
 
         yield return new WaitForSeconds(0.25f);
         hitBox.enabled = false;
+        ColorFade(false);
         if (isPlayerInFront)
             StartCoroutine("OpenDoor");
         else
@@ -140,6 +147,16 @@ public class Door : MonoBehaviour
         yield return new WaitForSeconds(0.75f);
 
         player = null;
+    }
+
+    void ColorFade(bool yesFade)
+    {
+        Renderer rend = GetComponent<Renderer>();
+        Color c = rend.material.color;
+        c.a = yesFade ? 0.25f : 1f;
+        rend.material.color = c;
+        if (GetComponentInParent<DoubleDoor>() != null)
+            GetComponentInParent<DoubleDoor>().CheckDoorFade(c);
     }
 
     private void OnDrawGizmosSelected()
