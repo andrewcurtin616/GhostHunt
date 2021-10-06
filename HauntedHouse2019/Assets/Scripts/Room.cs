@@ -6,7 +6,7 @@ public class Room : MonoBehaviour
 {
     Light[] roomLights;
     [HideInInspector]
-    public Transform[] decorActive;
+    public Decor[] decorActive;
     List<Ghost> ghosts;
     public Vector4 boundaries;
 
@@ -42,7 +42,7 @@ public class Room : MonoBehaviour
             if (child.name == "Lights")
                 roomLights = child.GetComponentsInChildren<Light>();
             if (child.name == "DecorActive")
-                decorActive = child.GetComponentsInChildren<Transform>();
+                decorActive = child.GetComponentsInChildren<Decor>();
             if (child.name == "Ghosts")
                 ghosts = new List<Ghost>(child.GetComponentsInChildren<Ghost>());
         }

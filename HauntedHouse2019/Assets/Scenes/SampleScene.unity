@@ -572,6 +572,8 @@ GameObject:
   - component: {fileID: 86392762}
   - component: {fileID: 86392761}
   - component: {fileID: 86392760}
+  - component: {fileID: 86392763}
+  - component: {fileID: 86392764}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -653,6 +655,33 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 86392758}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &86392763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86392758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 151516fea88aa6d49b05f609b7d1a776, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inspectable: 0
+  inspecting: 0
+--- !u!135 &86392764
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86392758}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.25
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &103909127
 GameObject:
   m_ObjectHideFlags: 0
@@ -7896,6 +7925,8 @@ GameObject:
   - component: {fileID: 778186760}
   - component: {fileID: 778186759}
   - component: {fileID: 778186758}
+  - component: {fileID: 778186761}
+  - component: {fileID: 778186762}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -7977,6 +8008,33 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 778186756}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &778186761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 778186756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 151516fea88aa6d49b05f609b7d1a776, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inspectable: 0
+  inspecting: 0
+--- !u!135 &778186762
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 778186756}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.25
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &781770685
 GameObject:
   m_ObjectHideFlags: 0

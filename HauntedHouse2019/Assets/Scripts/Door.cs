@@ -157,6 +157,8 @@ public class Door : MonoBehaviour
         rend.material.color = c;
         if (GetComponentInParent<DoubleDoor>() != null)
             GetComponentInParent<DoubleDoor>().CheckDoorFade(c);
+
+        //could just ask if we're rotated 0,180,360 and if player z pos is greater than ours
     }
 
     private void OnDrawGizmosSelected()

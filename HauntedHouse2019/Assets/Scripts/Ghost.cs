@@ -130,12 +130,13 @@ public class Ghost : MonoBehaviour
         //fade,play noise,anim, etc. (disappear)
         GetComponent<Renderer>().enabled = false; //should be fade and anim
         yield return new WaitForSeconds(2.5f);
-        if (state == ghostState.Hiding)
+        if (state == ghostState.Hiding && room.decorActive.Length != 0)
         {
             StartCoroutine("Hide");
             StopCoroutine("Teleport");
             yield return null;
         }
+        GetComponent<Light>().enabled = false; //so light is still active when hiding
         state = ghostState.Teleporting;
         yield return new WaitForSeconds(Random.Range(1.5f, 3f));
 
@@ -173,23 +174,33 @@ public class Ghost : MonoBehaviour
                 room.transform.position.y + 1, Random.Range(minZ, maxZ));
         transform.position = spawnPos;
         GetComponent<Renderer>().enabled = true; //should be fade and anim
+        GetComponent<Light>().enabled = true;
         StartCoroutine("Approach");
     }
 
     IEnumerator Hide()
     {
         //decide where to hide
-        //Decor hidingSpot = room.decorActive[Random.Range(0, room.decorActive.Length)];
+        Decor hidingSpot = room.decorActive[Random.Range(0, room.decorActive.Length)];
         //remember to make decor array of Decor scripts rather than transforms
-        transform.position = room.decorActive[Random.Range(0, room.decorActive.Length)].position;
+        transform.position = hidingSpot.transform.position;
         yield return new WaitForSeconds(5f);
-        /*while (true)
+        while (!hidingSpot.inspecting)
         {
             //wait for decor to be shook
             yield return null;
-            break;
-        }*/
-        //reveal, scare, then teleport
+        }
+
+        //reveal, scare, laugh, then teleport
+        yield return new WaitForSeconds(0.75f);
+        GetComponent<Renderer>().enabled = true;
+        GetComponent<Light>().enabled = true;
+        transform.position = transform.position + Vector3.up;
+        hidingSpot.StopInspecting();
+        player.GetHit(0);
+        state = ghostState.Laughing;
+        //noise/anim
+        yield return new WaitForSeconds(2);
         state = ghostState.Teleporting;
         StartCoroutine("Teleport");
     }
